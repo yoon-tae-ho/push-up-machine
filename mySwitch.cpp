@@ -1,16 +1,16 @@
-// myHeader.c
-#include "myHeader.hpp"
+// mySwitch.cpp
+#include "mySwitch.hpp"
 #include "myGpio.hpp"
 #include <Arduino.h>
 
 void setForward() {
-   digitalWrite(2, HIGH);
+  digitalWrite(2, HIGH);
 }
 
 void setBackward() {
-   digitalWrite(2, LOW);
+  digitalWrite(2, LOW);
 }
 
 void actuate(int speed) {
-   analogWrite(3, speed);
+  analogWrite(3, speed);
 }

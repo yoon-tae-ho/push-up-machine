@@ -1,15 +1,19 @@
 #include "HX711.h"
-#include "myHeader.hpp"
+#include "myActuator.hpp"
 #include "myGpio.hpp"
 
-// Setting for Loadcell
+// Settings
 HX711 scale_right(DOUT_RIGHT, CLK_RIGHT);
 HX711 scale_left(DOUT_LEFT, CLK_LEFT);
+
+Actuator actuator;
 
 // Constants
 int startTime = 0;
 int checkTime = 0;
-float duringTime = 0;
+int checkTimeBefore = 0;
+double duringTime = 0;
+double timeStep = 0;
 
 // Constants for Loadcell
 double load_right = 0.0;
@@ -23,6 +27,7 @@ bool isOver = false;
 void setup() {
   Serial.begin(115200);  // 값 모니터링 위해서...
   startTime = millis();
+  checkTimeBefore = startTime;
 
   // Loadcell
   scale_right.set_scale(calibration_factor); 
@@ -45,7 +50,8 @@ void setup() {
 
 void loop() {
   checkTime = millis();
-  duringTime = (float)(checkTime - startTime) / 1000.0;
+  duringTime = (double)(checkTime - startTime) / 1000.0;
+  timeStep = (double)(checkTime - checkTimeBefore) / 1000.0;
 
   // Loadcell
   load_right = (double)(scale_right.get_units());
@@ -67,10 +73,15 @@ void loop() {
   }
 
   if (count >= 3) {
-    setForward();
-    actuate(MAX_ACTUATOR_SPEED);
+    actuator.setForward();
+    actuator.actuate(MAX_ACTUATOR_PWM);
     delay(5000);
-    actuate(0);
+    actuator.actuate(0);
     count = 0;
   }
+
+  // calculate position of actuator
+  actuator.calculatePosition(timeStep);
+
+  checkTimeBefore = checkTime;
 }

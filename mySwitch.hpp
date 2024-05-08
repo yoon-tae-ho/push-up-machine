@@ -1,5 +1,5 @@
-#ifndef MYHEADER_H
-#define MYHEADER_H
+#ifndef MYSWITCH_H
+#define MYSWITCH_H
 
 void setForward();
 void setBackward();
