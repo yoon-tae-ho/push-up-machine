@@ -1,5 +1,6 @@
 #include "HX711.h"
 #include "myActuator.hpp"
+#include "myLoadcell.hpp"
 #include "myGpio.hpp"
 
 // Settings
@@ -62,6 +63,22 @@ void loop() {
   Serial.println(load_left);
   Serial.println("======================================");
 
+  bool a = digitalRead(MANUAL_ACTUATOR_UP);
+  bool b = digitalRead(MANUAL_ACTUATOR_DOWN);
+  if (a == 1 && b == 0) {
+    actuator.setForward();
+    actuator.actuate(MAX_ACTUATOR_PWM);
+  } else if (a == 0 && b == 1) {
+    actuator.setBackward();
+    actuator.actuate(MAX_ACTUATOR_PWM);
+  } else {
+    actuator.actuate(0);
+  }
+  Serial.println("======================================");
+  Serial.println(a);
+  Serial.println(b);
+  Serial.println("======================================");
+
   // Actuator
   if (load_left > referenceValue) {
     isOver = true;
@@ -79,6 +96,8 @@ void loop() {
     actuator.actuate(0);
     count = 0;
   }
+
+  
 
   // calculate position of actuator
   actuator.calculatePosition(timeStep);

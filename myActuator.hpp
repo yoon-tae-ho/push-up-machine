@@ -2,7 +2,7 @@
 #define MYACTUATOR_H
 
 #define MAX_ACTUATOR_PWM 255
-#define MAX_ACTUATOR_SPEED 4.5 // 4.5 mm/s
+#define MAX_ACTUATOR_SPEED 11.095 // 11.095 mm/s
 
 class Actuator {
   private:
