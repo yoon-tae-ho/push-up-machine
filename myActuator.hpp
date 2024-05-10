@@ -10,6 +10,9 @@ class Actuator {
     bool direction;
     double position; // mm
 
+    bool isAvailable; // power switch
+    bool isManualing; // manual switch
+
     void setDirection();
 
   public:
@@ -21,11 +24,15 @@ class Actuator {
 
     void setBackward();
 
-    void actuate(int speed);
+    void actuate(int speed, bool manualing = false);
 
     double getCurrentPosition();
 
     void calculatePosition(double timeStep);
+
+    void setAvailable(bool available);
+
+    void setManualing(bool manualing);
 };
 
 #endif

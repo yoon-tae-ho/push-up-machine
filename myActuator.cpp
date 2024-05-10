@@ -17,6 +17,8 @@ Actuator::Actuator() {
   position = 0;
   direction = HIGH;
   isWorking = false;
+  isAvailable = false;
+  isManualing = false;
 }
 
 void Actuator::setForward() {
@@ -29,7 +31,11 @@ void Actuator::setBackward() {
   setDirection();
 }
 
-void Actuator::actuate(int pwm) {
+void Actuator::actuate(int pwm, bool manualing) {
+  if (!isAvailable) return;
+
+  if (isManualing && !manualing) return;
+
   analogWrite(PWM_RIGHT, pwm);
   analogWrite(PWM_LEFT, pwm);
 
@@ -47,4 +53,13 @@ void Actuator::calculatePosition(double timeStep) {
   double displacement = (double)MAX_ACTUATOR_SPEED * timeStep; // v (mm/s) * t (s)
   if (direction == LOW) displacement *= -1;
   position += displacement;
+}
+
+void Actuator::setAvailable(bool available) {
+  if (!available) actuate(0);
+  isAvailable = available;
+}
+
+void Actuator::setManualing(bool manualing) {
+  isManualing = manualing;
 }
