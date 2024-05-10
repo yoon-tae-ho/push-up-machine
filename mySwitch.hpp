@@ -3,7 +3,7 @@
 
 #include "myActuator.hpp"
 
-void initializeSwitches(bool manualUp, bool manualDown, bool zero);
+void initializeSwitches();
 void checkPowerSwitch(Actuator actuator);
 void checkManualSwitch(Actuator actuator);
 void checkZeroSwitch(Actuator actuator);

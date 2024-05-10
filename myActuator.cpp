@@ -13,6 +13,11 @@ void Actuator::setDirection() {
 // public
 
 Actuator::Actuator() {
+  pinMode(DIR_RIGHT, OUTPUT);
+  pinMode(PWM_RIGHT, OUTPUT);
+  pinMode(DIR_LEFT, OUTPUT);
+  pinMode(PWM_LEFT, OUTPUT);
+
   currentPwm = 0;
   position = 0;
   direction = HIGH;

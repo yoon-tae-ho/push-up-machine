@@ -15,10 +15,15 @@ bool manualUp;
 bool manualDown;
 bool zero;
 
-void initializeSwitches(bool manualUp, bool manualDown, bool zero) {
-  manualUpBefore = manualUp;
-  manualDownBefore = manualDown;
-  zeroBefore = zero;
+void initializeSwitches() {
+  pinMode(POWER, INPUT_PULLUP);
+  pinMode(MANUAL_ACTUATOR_UP, INPUT_PULLUP);
+  pinMode(MANUAL_ACTUATOR_DOWN, INPUT_PULLUP);
+  pinMode(ZERO_ADJUSTMENT, INPUT_PULLUP);
+
+  manualUpBefore = digitalRead(MANUAL_ACTUATOR_UP);
+  manualDownBefore = digitalRead(MANUAL_ACTUATOR_DOWN);
+  zeroBefore = digitalRead(ZERO_ADJUSTMENT);
 }
 
 void checkPowerSwitch(Actuator actuator) {
