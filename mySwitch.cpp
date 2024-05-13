@@ -26,15 +26,15 @@ void initializeSwitches() {
   zeroBefore = digitalRead(ZERO_ADJUSTMENT);
 }
 
-void checkPowerSwitch(Actuator actuator) {
-  actuator.setAvailable(digitalRead(POWER) == LOW ? true : false);
+void checkPowerSwitch(Actuator& actuator) {
+  actuator.setAvailable(digitalRead(POWER) == LOW);
 }
 
-void checkManualSwitch(Actuator actuator) {
-  if ((manualUp == manualUpBefore) && (manualDown == manualDownBefore)) return;
-
+void checkManualSwitch(Actuator& actuator) {
   manualUp = digitalRead(MANUAL_ACTUATOR_UP);
   manualDown = digitalRead(MANUAL_ACTUATOR_DOWN);
+
+  if ((manualUp == manualUpBefore) && (manualDown == manualDownBefore)) return;
 
   if (manualUp == LOW && manualDown == HIGH) {
     // actuate upward manualy
@@ -47,6 +47,7 @@ void checkManualSwitch(Actuator actuator) {
     actuator.setBackward();
     actuator.actuate(MAX_ACTUATOR_PWM, true);
   } else {
+    actuator.actuate(0, true);
     actuator.setManualing(false);
   }
 
@@ -54,7 +55,7 @@ void checkManualSwitch(Actuator actuator) {
   manualDownBefore = manualDown;
 }
 
-void checkZeroSwitch(Actuator actuator) {
+void checkZeroSwitch(Actuator& actuator) {
   zero = digitalRead(ZERO_ADJUSTMENT);
   if (zeroBefore == HIGH && zero == LOW) {
     //TODO: start zero adjustment

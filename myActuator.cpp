@@ -44,7 +44,7 @@ void Actuator::actuate(int pwm, bool manualing) {
   analogWrite(PWM_RIGHT, pwm);
   analogWrite(PWM_LEFT, pwm);
 
-  isWorking = (pwm == 0) ? false : true;
+  isWorking = (pwm != 0);
   currentPwm = pwm;
 }
 
@@ -61,7 +61,7 @@ void Actuator::calculatePosition(double timeStep) {
 }
 
 void Actuator::setAvailable(bool available) {
-  if (!available) actuate(0);
+  if (!available) actuate(0, true);
   isAvailable = available;
 }
 

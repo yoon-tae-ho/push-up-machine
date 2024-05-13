@@ -54,22 +54,29 @@ void loop() {
   Serial.println("======================================");
 
   //* Actuator
-  if (load_left > referenceValue) {
-    isOver = true;
-  } else {
-    if (isOver) {
-        ++count;
-    }
-    isOver = false;
-  }
+  // if (load_left > referenceValue) {
+  //   isOver = true;
+  // } else {
+  //   if (isOver) {
+  //       ++count;
+  //   }
+  //   isOver = false;
+  // }
 
-  if (count >= 3) {
-    actuator.setForward();
-    actuator.actuate(MAX_ACTUATOR_PWM);
-    delay(5000);
-    actuator.actuate(0);
-    count = 0;
-  }
+  // if (count >= 3) {
+  //   actuator.setForward();
+  //   actuator.actuate(MAX_ACTUATOR_PWM);
+  //   delay(5000);
+  //   actuator.actuate(0);
+  //   count = 0;
+  // }
+
+  Serial.print("isAvailable: ");
+  Serial.println(actuator.isAvailable);
+  Serial.print("isManualing: ");
+  Serial.println(actuator.isManualing);
+  Serial.print("isWorking: ");
+  Serial.println(actuator.isWorking);
 
   // calculate position of actuator
   actuator.calculatePosition(timeStep);
