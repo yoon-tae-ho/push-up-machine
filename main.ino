@@ -71,13 +71,6 @@ void loop() {
   //   count = 0;
   // }
 
-  Serial.print("isAvailable: ");
-  Serial.println(actuator.isAvailable);
-  Serial.print("isManualing: ");
-  Serial.println(actuator.isManualing);
-  Serial.print("isWorking: ");
-  Serial.println(actuator.isWorking);
-
   // calculate position of actuator
   actuator.calculatePosition(timeStep);
 
