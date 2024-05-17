@@ -1,7 +1,7 @@
 // mySwitch.cpp
 #include "mySwitch.hpp"
-#include "myGpio.hpp"
 #include "myActuator.hpp"
+#include "myGpio.hpp"
 #include <Arduino.h>
 
 //* Switch 값이 HIGH(1)일 경우 off
@@ -26,15 +26,17 @@ void initializeSwitches() {
   zeroBefore = digitalRead(ZERO_ADJUSTMENT);
 }
 
-void checkPowerSwitch(Actuator& actuator) {
-  actuator.setAvailable(digitalRead(POWER) == LOW);
+void checkPowerSwitch(Actuator &actuator) {
+  // actuator.setAvailable(digitalRead(POWER) == LOW);
+  actuator.setAvailable(true);
 }
 
-void checkManualSwitch(Actuator& actuator) {
+void checkManualSwitch(Actuator &actuator) {
   manualUp = digitalRead(MANUAL_ACTUATOR_UP);
   manualDown = digitalRead(MANUAL_ACTUATOR_DOWN);
 
-  if ((manualUp == manualUpBefore) && (manualDown == manualDownBefore)) return;
+  if ((manualUp == manualUpBefore) && (manualDown == manualDownBefore))
+    return;
 
   if (manualUp == LOW && manualDown == HIGH) {
     // actuate upward manualy
@@ -55,10 +57,14 @@ void checkManualSwitch(Actuator& actuator) {
   manualDownBefore = manualDown;
 }
 
-void checkZeroSwitch(Actuator& actuator) {
+bool checkZeroSwitch() {
   zero = digitalRead(ZERO_ADJUSTMENT);
+  bool result;
   if (zeroBefore == HIGH && zero == LOW) {
-    //TODO: start zero adjustment
+    result = true;
+  } else {
+    result = false;
   }
   zeroBefore = zero;
+  return result;
 }

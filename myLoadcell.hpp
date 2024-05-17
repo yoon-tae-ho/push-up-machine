@@ -8,13 +8,18 @@ class Loadcell {
     HX711 scaleRight;
     HX711 scaleLeft;
 
+    float balanceFactor; // 0 ~ 1
+
   public:
+    bool isBalanced;
 
     Loadcell();
 
     double getRightLoad();
 
     double getLeftLoad();
+
+    bool checkBalance();
 };
 
 #endif

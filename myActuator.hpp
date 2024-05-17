@@ -28,6 +28,8 @@ class Actuator {
 
     double getCurrentPosition();
 
+    void setCurrentPosition(double value);
+
     void calculatePosition(double timeStep);
 
     void setAvailable(bool available);

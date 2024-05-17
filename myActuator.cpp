@@ -27,12 +27,12 @@ Actuator::Actuator() {
 }
 
 void Actuator::setForward() {
-  direction = HIGH;
+  direction = LOW;
   setDirection();
 }
 
 void Actuator::setBackward() {
-  direction = LOW;
+  direction = HIGH;
   setDirection();
 }
 
@@ -52,11 +52,15 @@ double Actuator::getCurrentPosition() {
   return position;
 }
 
+void Actuator::setCurrentPosition(double value) {
+  position = value;
+}
+
 void Actuator::calculatePosition(double timeStep) {
   if (!isWorking) return;
 
   double displacement = (double)MAX_ACTUATOR_SPEED * timeStep; // v (mm/s) * t (s)
-  if (direction == LOW) displacement *= -1;
+  if (direction == HIGH) displacement *= -1;
   position += displacement;
 }
 

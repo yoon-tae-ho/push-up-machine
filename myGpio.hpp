@@ -14,9 +14,13 @@
 #define PWM_LEFT 13
 
 // for Switch
-#define POWER 8
+#define POWER 5
 #define MANUAL_ACTUATOR_UP 17
 #define MANUAL_ACTUATOR_DOWN 18
-#define ZERO_ADJUSTMENT 9
+#define ZERO_ADJUSTMENT 7
+
+// I2C
+#define SCL 9
+#define SDA 8
 
 #endif
