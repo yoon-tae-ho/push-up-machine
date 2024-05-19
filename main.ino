@@ -1,10 +1,14 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <EEPROM.h>
+
 #include "HX711.h"
 #include "myActuator.hpp"
 #include "myGpio.hpp"
 #include "myLoadcell.hpp"
 #include "mySwitch.hpp"
 #include "myUtils.hpp"
-#include <EEPROM.h>
 
 #define EEPROM_POSITION_INDEX 0
 #define EEPROM_ZERO_MAX_INDEX 1
@@ -19,13 +23,16 @@ int checkTime = 0;
 int checkTimeBefore = 0;
 double duringTime = 0;
 double timeStep = 0;
-bool zeroAdjustment = false;
-bool zeroSwitch = false;
+
+//* Constants for Loadcell
+std::vector<double> dataForZeroAdj;
+const int windowSize = 5;
+bool zeroAdjustmenting = false;
 
 //* Constants for Loadcell
 double loadRight = 0.0;
 double loadLeft = 0.0;
-double loadAvg = 0.0;
+double loadSum = 0.0;
 double loadBefore = 0.0;
 double minimumValue = 3.0;
 
@@ -40,7 +47,6 @@ bool goingDown = false;
 //* Constants for Actuator
 double moveRepsTime = 1000000;
 double movingTime = 3000; // ms
-bool isMove = false;
 bool moveUp = false;
 bool moveDown = true;
 
@@ -56,16 +62,12 @@ double refChangeDown = 0.14 * (MAX_ACTUATOR_SPEED * movingTime / 1000) / 300;
 double loadRatio = 1.0;
 
 double repFactor = 0.7; // ref_load에 대한 비율, 0 ~ 1
-double userMax;
-double userMin; //하중 계속 측정
 
 
 void afterOneRep() {
   moveCount++;
   count++;
   Serial.println(count);
-  userMax = (maxRefLoad + minRefLoad) / 2;
-  userMin = (maxRefLoad + minRefLoad) / 2;
   wentUp = false;
   wentDown = false;
   top = false;
@@ -86,7 +88,7 @@ void setup() {
 
   //* Actuator
   actuator = Actuator();
-  actuator.setCurrentPosition(loadValue(EEPROM_POSITION_INDEX));
+  actuator.setInitialPosition(loadValue(EEPROM_POSITION_INDEX));
 
   //* Switch
   initializeSwitches();
@@ -97,93 +99,73 @@ void loop() {
   duringTime = (double)(checkTime - startTime) / 1000.0; // elapsed time
   timeStep = (double)(checkTime - checkTimeBefore) / 1000.0;
 
+  //* Switch
+  checkPowerSwitch(actuator);
+  checkManualSwitch(actuator);
+  if (checkZeroSwitch()) {
+    zeroAdjustmenting = (dititalRead(ZERO_ADJUSTMENT) == LOW);
+    // stop zero adjustment
+    if (!zeroAdjustmenting) {
+      std::vector<double> localExtreme = getLocalExtremeValue(dataForZeroAdj, windowSize);
+
+      maxRefLoad = localExtreme[0] * repFactor;
+      minRefLoad = localExtreme[1] / repFactor;
+    }
+  }
+
   //* Loadcell
   loadRight = loadcell.getRightLoad();
   loadLeft = loadcell.getLeftLoad();
-  loadAvg = (loadLeft + loadRight) / 2;
+  loadSum = loadLeft + loadRight;
 
   //* Actuator
-  zeroDone = (maxRefLoad > minRefLoad) ? true : false;
-
-  // zero adjustment on/off
-  if (checkZeroSwitch()) {
-    if (zeroAdjustment) {
-      zeroAdjustment = false;
-      if (!zeroDone)
-        Serial.println("Need to re-do adjustment");
-      maxLoad = 0.0;
-      minLoad = 300.0;
-      Serial.println("Adjustment Done");
-    } else {
-      zeroAdjustment = true;
-      Serial.println("Adjustment Started");
+  if (zeroAdjustmenting) {
+    //* Zero Adjustment
+    dataForZeroAdj.push_back(loadSum);
+  } else {
+    //* Main Function
+    maxRefLoad *= loadRatio;
+    minRefLoad *= loadRatio;
+    
+    // counting
+    if (!actuator.isWorking && loadcell.checkBalance()) {
+      if (loadSum > maxRefLoad){
+        wentDown = true;
+        bottom = goingUp ? true : false;
+      }
+      if (loadSum < maxRefLoad && wentDown)
+        goingUp = true;
+      if (loadSum > minRefLoad && !wentDown)
+        goingDown = true;
+      if (loadSum < minRefLoad){
+        wentUp = wentDown ? true : false;
+        top = (goingDown && !wentDown) ? true : false;
+      }
+      if (wentDown && wentUp)//한번하고 나면
+        afterOneRep();
     }
-  }
 
-  // Zero Adjustment
-  if (zeroAdjustment && loadcell.checkBalance()) {
-    if (loadAvg > maxLoad) {
-      maxLoad = loadAvg;
+    // 몇 번 이후 작동
+    bool moveReps = (moveCount == everyCount) ? true : false;
+    if (moveReps) {
+      moveDown ? actuator.setForward() : actuator.setBackward();
+      actuator.actuate(MAX_ACTUATOR_PWM);
+      moveRepsTime = checkTime; //ms
+      moveReps = false;
+      moveCount = 0;
+      Serial.print("Moving from ");
+      Serial.println(actuator.getCurrentPosition());
+    } else if (checkTime - moveRepsTime >= movingTime && actuator.isWorking) {
+      actuator.actuate(0);
+      Serial.print("Height adjusted to ");
+      Serial.println(actuator.getCurrentPosition());
+      moveDown ? loadRatio += refChangeUp : loadRatio -= refChangeDown;
     }
-    if (loadAvg < minLoad && loadAvg > minimumValue) {
-      minLoad = loadAvg;
-    }
-    maxRefLoad = maxLoad * repFactor;
-    minRefLoad = minLoad / repFactor;
-    userMax = (maxRefLoad + minRefLoad) / 2;
-    userMin = (maxRefLoad + minRefLoad) / 2;
-  }
-
-  userMax = (loadAvg > userMax) ? loadAvg : userMax;
-  userMin = (loadAvg < userMin) ? loadAvg : userMin;
-
-  maxLoad *= loadRatio;
-  minLoad *= loadRatio;
-  
-  // counting
-  if (!isMove && zeroDone && !zeroAdjustment && loadcell.checkBalance()) {   
-    if (loadAvg > maxRefLoad){
-      wentDown = true;
-      bottom = goingUp ? true : false;
-    }
-    if (loadAvg < maxRefLoad && wentDown)
-      goingUp = true;
-    if (loadAvg > minRefLoad && !wentDown)
-      goingDown = true;
-    if (loadAvg < minRefLoad){
-      wentUp = wentDown ? true : false;
-      top = (goingDown && !wentDown) ? true : false;
-    }
-    if (wentDown && wentUp)//한번하고 나면
-      afterOneRep();
-  }
-
-  // 몇 번 이후 작동
-  bool moveReps = (moveCount == everyCount) ? true : false;
-  if (moveReps) {
-    moveDown ? actuator.setForward() : actuator.setBackward();
-    actuator.actuate(MAX_ACTUATOR_PWM);
-    moveRepsTime = checkTime; //ms
-    moveReps = false;
-    isMove = true;
-    moveCount = 0;
-    Serial.print("Moving from ");
-    Serial.println(actuator.getCurrentPosition());
-  } else if (checkTime - moveRepsTime >= movingTime && isMove) {
-    isMove = false;
-    actuator.actuate(0);
-    Serial.print("Height adjusted to ");
-    Serial.println(actuator.getCurrentPosition());
-    moveDown ? loadRatio += refChangeUp : loadRatio -= refChangeDown;
   }
 
   // calculate position of actuator
   actuator.calculatePosition(timeStep);
 
-  //* Switch
-  checkPowerSwitch(actuator);
-  checkManualSwitch(actuator);
-
   checkTimeBefore = checkTime;
-  loadBefore = loadAvg;
+  loadBefore = loadSum;
 }

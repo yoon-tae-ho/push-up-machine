@@ -52,7 +52,7 @@ double Actuator::getCurrentPosition() {
   return position;
 }
 
-void Actuator::setCurrentPosition(double value) {
+void Actuator::setInitialPosition(double value) {
   position = value;
 }
 

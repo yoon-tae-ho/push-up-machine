@@ -14,6 +14,7 @@ bool zeroBefore;
 bool manualUp;
 bool manualDown;
 bool zero;
+bool zeroResult;
 
 void initializeSwitches() {
   pinMode(POWER, INPUT_PULLUP);
@@ -57,14 +58,10 @@ void checkManualSwitch(Actuator &actuator) {
   manualDownBefore = manualDown;
 }
 
+// zero switch의 값이 바뀔 때 true를 리턴.
 bool checkZeroSwitch() {
   zero = digitalRead(ZERO_ADJUSTMENT);
-  bool result;
-  if (zeroBefore == HIGH && zero == LOW) {
-    result = true;
-  } else {
-    result = false;
-  }
+  zeroResult = (zeroBefore != zero);
   zeroBefore = zero;
-  return result;
+  return zeroResult;
 }

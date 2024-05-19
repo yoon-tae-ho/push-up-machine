@@ -28,7 +28,7 @@ class Actuator {
 
     double getCurrentPosition();
 
-    void setCurrentPosition(double value);
+    void setInitialPosition(double value);
 
     void calculatePosition(double timeStep);
 
