@@ -12,6 +12,8 @@
 #include "myBLE.hpp"
 #include "myUser.hpp"
 
+#define MAX_INT_VALUE 2147483647
+
 #define EEPROM_POSITION_INDEX 0
 #define EEPROM_ZERO_MAX_INDEX 1
 #define EEPROM_ZERO_MIN_INDEX 2
@@ -38,28 +40,20 @@ double loadRight = 0.0;
 double loadLeft = 0.0;
 double loadSum = 0.0;
 double loadBefore = 0.0;
-double minimumValue = 3.0;
 
 //* Constants for Actuator
-double moveRepsTime = 1000000;
-double movingTime = 3000; // ms
-bool moveUp = false;
-bool moveDown = true;
+double moveStartTime = MAX_INT_VALUE;
+double moveRefTime = 5000; // ms
 
+int pivot = 5;
 int count = 0;
 int moveCount = 0;
-int everyCount = 5;
-double maxLoad = 0.0;
-double minLoad = 300.0;
-double maxRefLoad = 0.0; //실제 사용할 최대값
-double minRefLoad = 0.0; //실제 사용할 최소값
-double refChangeUp = 0.16 * (MAX_ACTUATOR_SPEED * movingTime / 1000) / 300;
-double refChangeDown = 0.14 * (MAX_ACTUATOR_SPEED * movingTime / 1000) / 300;
+
+// TODO: 민재
+double refChangeUp = 0.16 * (MAX_ACTUATOR_SPEED * moveRefTime / 1000) / 300;
+double refChangeDown = 0.14 * (MAX_ACTUATOR_SPEED * moveRefTime / 1000) / 300;
 double loadRatio = 1.0;
-
 double repFactor = 0.7; // ref_load에 대한 비율, 0 ~ 1
-
-//* Constants for User
 
 
 void setup() {
@@ -92,6 +86,7 @@ void setup() {
   user.setRefLoad(loadValue(EEPROM_ZERO_MAX_INDEX), loadValue(EEPROM_ZERO_MIN_INDEX));
 }
 
+
 void loop() {
   checkTime = millis();
   duringTime = (double)(checkTime - startTime) / 1000.0; // elapsed time
@@ -106,8 +101,9 @@ void loop() {
     if (!zeroAdjustmenting) {
       std::vector<double> localExtreme = getLocalExtremeValue(dataForZeroAdj, windowSize);
 
-      maxRefLoad = localExtreme[0] * repFactor;
-      minRefLoad = localExtreme[1] / repFactor;
+      double maxRefLoad = localExtreme[0] * repFactor;
+      double minRefLoad = localExtreme[1] / repFactor;
+      user.setRefLoad(maxRefLoad, minRefLoad);
 
       // save at flash memory
       saveValue(EEPROM_ZERO_MAX_INDEX, maxRefLoad);
@@ -126,8 +122,9 @@ void loop() {
     dataForZeroAdj.push_back(loadSum);
   } else {
     //* Main Function
-    maxRefLoad *= loadRatio;
-    minRefLoad *= loadRatio;
+    // TODO: 민재
+    // maxRefLoad *= loadRatio;
+    // minRefLoad *= loadRatio;
 
     // counting
     if (loadcell.checkBalance()) {
@@ -150,20 +147,19 @@ void loop() {
     }
 
     // 몇 번 이후 작동
-    bool moveReps = (moveCount == everyCount) ? true : false;
-    if (moveReps) {
-      moveDown ? actuator.setForward() : actuator.setBackward();
+    count = user.getCount();
+    if ((count % pivot == 0) && (count != 0) && (count != moveCount)) {
+      actuator.setBackward();
       actuator.actuate(MAX_ACTUATOR_PWM);
-      moveRepsTime = checkTime; //ms
-      moveReps = false;
-      moveCount = 0;
-      Serial.print("Moving from ");
-      Serial.println(actuator.getCurrentPosition());
-    } else if (checkTime - moveRepsTime >= movingTime && actuator.isWorking) {
+      moveStartTime = checkTime; //ms
+      moveCount = count; // 여러 번 실행되지 않게 하기 위해.
+    }
+    if ((checkTime - moveStartTime >= moveRefTime) && actuator.isWorking) {
       actuator.actuate(0);
-      Serial.print("Height adjusted to ");
-      Serial.println(actuator.getCurrentPosition());
-      moveDown ? loadRatio += refChangeUp : loadRatio -= refChangeDown;
+      moveStartTime = MAX_INT_VALUE;
+
+      // TODO: 민재
+      // moveDown ? loadRatio += refChangeUp : loadRatio -= refChangeDown;
     }
   }
 
