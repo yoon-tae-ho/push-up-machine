@@ -10,6 +10,7 @@
 #include "mySwitch.hpp"
 #include "myUtils.hpp"
 #include "myBLE.hpp"
+#include "myUser.hpp"
 
 #define EEPROM_POSITION_INDEX 0
 #define EEPROM_ZERO_MAX_INDEX 1
@@ -18,6 +19,7 @@
 Loadcell loadcell;
 Actuator actuator;
 BLEHandler bleHandler;
+User user;
 
 //* Constants
 int startTime = 0;
@@ -38,14 +40,6 @@ double loadSum = 0.0;
 double loadBefore = 0.0;
 double minimumValue = 3.0;
 
-bool wentDown = false;
-bool wentUp = false;
-bool zeroDone;
-bool bottom = false;
-bool top = false;
-bool goingUp = false;
-bool goingDown = false;
-
 //* Constants for Actuator
 double moveRepsTime = 1000000;
 double movingTime = 3000; // ms
@@ -65,18 +59,8 @@ double loadRatio = 1.0;
 
 double repFactor = 0.7; // ref_load에 대한 비율, 0 ~ 1
 
+//* Constants for User
 
-void afterOneRep() {
-  moveCount++;
-  count++;
-  Serial.println(count);
-  wentUp = false;
-  wentDown = false;
-  top = false;
-  bottom = false;
-  goingDown = false;
-  goingUp = false;
-}
 
 void setup() {
   Serial.begin(115200);
@@ -90,6 +74,8 @@ void setup() {
 
   //* Actuator
   actuator = Actuator();
+
+  // load initial position from flash memory
   actuator.setInitialPosition(loadValue(EEPROM_POSITION_INDEX));
 
   //* Switch
@@ -98,6 +84,12 @@ void setup() {
   //* BLE
   bleHandler = BLEHandler("ESP32_BLE_Server", SERVICE_UUID, CHARACTERISTIC_UUID);
   bleHandler.init();
+
+  //* User
+  user = User();
+
+  // load reference load from flash memory
+  user.setRefLoad(loadValue(EEPROM_ZERO_MAX_INDEX), loadValue(EEPROM_ZERO_MIN_INDEX));
 }
 
 void loop() {
@@ -138,21 +130,23 @@ void loop() {
     minRefLoad *= loadRatio;
 
     // counting
-    if (!actuator.isWorking && loadcell.checkBalance()) {
-      if (loadSum > maxRefLoad){
-        wentDown = true;
-        bottom = goingUp ? true : false;
+    if (loadcell.checkBalance()) {
+      // User.state -> (0 ~ 3 : up ~ down)
+      if (loadSum < user.getMinRefLoad()) {
+        user.setState(0);
+      } else if (loadSum < user.getMidRefLoad()) {
+        user.setState(1);
+      } else if (loadSum < user.getMaxRefLoad()) {
+        user.setState(2);
+      } else {
+        user.setState(3);
+        if (user.getPrevState() == 2) user.wentDown = true;
       }
-      if (loadSum < maxRefLoad && wentDown)
-        goingUp = true;
-      if (loadSum > minRefLoad && !wentDown)
-        goingDown = true;
-      if (loadSum < minRefLoad){
-        wentUp = wentDown ? true : false;
-        top = (goingDown && !wentDown) ? true : false;
+
+      if (user.wentDown && user.getState() == 0) {
+        user.setCount(user.getCount() + 1);
+        user.wentDown = false;
       }
-      if (wentDown && wentUp)//한번하고 나면
-        afterOneRep();
     }
 
     // 몇 번 이후 작동

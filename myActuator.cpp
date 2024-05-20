@@ -67,6 +67,7 @@ void Actuator::calculatePosition(double timeStep) {
   if (position < 0) position = 0;
   else if (position > 300.0) position = 300.0;
 
+  // save at flash memory
   saveValue(EEPROM_POSITION_INDEX, position);
 }
 
