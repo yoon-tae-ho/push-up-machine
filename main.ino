@@ -116,6 +116,10 @@ void loop() {
 
       maxRefLoad = localExtreme[0] * repFactor;
       minRefLoad = localExtreme[1] / repFactor;
+
+      // save at flash memory
+      saveValue(EEPROM_ZERO_MAX_INDEX, maxRefLoad);
+      saveValue(EEPROM_ZERO_MIN_INDEX, minRefLoad);
     }
   }
 

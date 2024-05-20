@@ -1,7 +1,8 @@
 // myActuator.c
+#include <Arduino.h>
 #include "myActuator.hpp"
 #include "myGpio.hpp"
-#include <Arduino.h>
+#include "myUtils.hpp"
 
 // private
 
@@ -62,6 +63,11 @@ void Actuator::calculatePosition(double timeStep) {
   double displacement = (double)MAX_ACTUATOR_SPEED * timeStep; // v (mm/s) * t (s)
   if (direction == HIGH) displacement *= -1;
   position += displacement;
+
+  if (position < 0) position = 0;
+  else if (position > 300.0) position = 300.0;
+
+  saveValue(EEPROM_POSITION_INDEX, position);
 }
 
 void Actuator::setAvailable(bool available) {
