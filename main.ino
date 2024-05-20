@@ -9,6 +9,7 @@
 #include "myLoadcell.hpp"
 #include "mySwitch.hpp"
 #include "myUtils.hpp"
+#include "myBLE.hpp"
 
 #define EEPROM_POSITION_INDEX 0
 #define EEPROM_ZERO_MAX_INDEX 1
@@ -16,6 +17,7 @@
 
 Loadcell loadcell;
 Actuator actuator;
+BLEHandler bleHandler;
 
 //* Constants
 int startTime = 0;
@@ -92,6 +94,10 @@ void setup() {
 
   //* Switch
   initializeSwitches();
+
+  //* BLE
+  bleHandler = BLEHandler("ESP32_BLE_Server", SERVICE_UUID, CHARACTERISTIC_UUID);
+  bleHandler.init();
 }
 
 void loop() {
@@ -126,7 +132,7 @@ void loop() {
     //* Main Function
     maxRefLoad *= loadRatio;
     minRefLoad *= loadRatio;
-    
+
     // counting
     if (!actuator.isWorking && loadcell.checkBalance()) {
       if (loadSum > maxRefLoad){
@@ -165,6 +171,12 @@ void loop() {
 
   // calculate position of actuator
   actuator.calculatePosition(timeStep);
+
+  //* BLE
+  // BLE example
+  if (bleHandler.getIsConnected()) {
+    bleHandler.notify("minjae,ba,bo");
+  }
 
   checkTimeBefore = checkTime;
   loadBefore = loadSum;
