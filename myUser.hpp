@@ -8,14 +8,17 @@ class User {
 
     int state; // (0 ~ 3 : up ~ down)
     int prevState;
-    int count;
 
   public:
     bool wentDown;
+    bool autoMode;
+    
+    int totalCount;
+    int levelCount;
     
     User();
 
-    void setRefLoad(const double& max, const double& min);
+    void setRefLoad(const double& max, const double& min, const double& currentPos);
 
     double getMaxRefLoad();
 
@@ -28,10 +31,6 @@ class User {
     int getState();
 
     int getPrevState();
-
-    void setCount(const int& newCount);
-
-    int getCount();
 };
 
 #endif

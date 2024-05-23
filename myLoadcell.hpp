@@ -20,6 +20,8 @@ class Loadcell {
     double getLeftLoad();
 
     bool checkBalance();
+
+    bool checkBalanceDirection();
 };
 
 #endif

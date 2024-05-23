@@ -27,3 +27,8 @@ bool Loadcell::checkBalance() {
   return (loadLeft > loadRight * balanceFactor) ||
          (loadRight > loadLeft * balanceFactor);
 }
+
+bool Loadcell::checkBalanceDirection() {
+  // unbalance 일 때만!!
+  return getLeftLoad() < getRightLoad();
+}

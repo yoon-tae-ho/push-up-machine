@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 #include <EEPROM.h>
 
 #include "HX711.h"
@@ -42,19 +43,18 @@ double loadSum = 0.0;
 double loadBefore = 0.0;
 
 //* Constants for Actuator
-double moveStartTime = MAX_INT_VALUE;
-double moveRefTime = 5000; // ms
+double currentPos;
 
-int pivot = 5;
-int count = 0;
-int moveCount = 0;
+const int pivotCount = 5;
+const double pivotDistance = 100.0;
+double refPosition = 0;
 
-// TODO: 민재
-double refChangeUp = 0.16 * (MAX_ACTUATOR_SPEED * moveRefTime / 1000) / 300;
-double refChangeDown = 0.14 * (MAX_ACTUATOR_SPEED * moveRefTime / 1000) / 300;
-double loadRatio = 1.0;
+//* for BLE
+String sendValue;
+String receiveValue;
+
+// reference, change
 double repFactor = 0.7; // ref_load에 대한 비율, 0 ~ 1
-
 
 void setup() {
   Serial.begin(115200);
@@ -91,6 +91,7 @@ void loop() {
   checkTime = millis();
   duringTime = (double)(checkTime - startTime) / 1000.0; // elapsed time
   timeStep = (double)(checkTime - checkTimeBefore) / 1000.0;
+  currentPos = actuator.getCurrentPosition();
 
   //* Switch
   checkPowerSwitch(actuator);
@@ -103,7 +104,7 @@ void loop() {
 
       double maxRefLoad = localExtreme[0] * repFactor;
       double minRefLoad = localExtreme[1] / repFactor;
-      user.setRefLoad(maxRefLoad, minRefLoad);
+      user.setRefLoad(maxRefLoad, minRefLoad, currentPos);
 
       // save at flash memory
       saveValue(EEPROM_ZERO_MAX_INDEX, maxRefLoad);
@@ -122,10 +123,10 @@ void loop() {
     dataForZeroAdj.push_back(loadSum);
   } else {
     //* Main Function
-    // TODO: 민재
-    // maxRefLoad *= loadRatio;
-    // minRefLoad *= loadRatio;
 
+    // reference load를 높이에 맞게 바꿔야 함
+    user.calculateRef(currentPos);
+    
     // counting
     if (loadcell.checkBalance()) {
       // User.state -> (0 ~ 3 : up ~ down)
@@ -141,25 +142,24 @@ void loop() {
       }
 
       if (user.wentDown && user.getState() == 0) {
-        user.setCount(user.getCount() + 1);
+        if (user.autoMode) user.levelCount += 1;
+        user.totalCount += 1;
         user.wentDown = false;
       }
     }
 
-    // 몇 번 이후 작동
-    count = user.getCount();
-    if ((count % pivot == 0) && (count != 0) && (count != moveCount)) {
-      actuator.setBackward();
-      actuator.actuate(MAX_ACTUATOR_PWM);
-      moveStartTime = checkTime; //ms
-      moveCount = count; // 여러 번 실행되지 않게 하기 위해.
-    }
-    if ((checkTime - moveStartTime >= moveRefTime) && actuator.isWorking) {
-      actuator.actuate(0);
-      moveStartTime = MAX_INT_VALUE;
+    if (user.autoMode) {
+      // 몇 번 이후 작동
+      if ((user.levelCount == pivotCount) && (user.levelCount != 0)) {
+        actuator.setBackward();
+        actuator.actuate(MAX_ACTUATOR_PWM);
+        refPosition = currentPos;
+        user.levelCount = 0;
+      }
 
-      // TODO: 민재
-      // moveDown ? loadRatio += refChangeUp : loadRatio -= refChangeDown;
+      if ((fabs(refPosition - currentPos) >= pivotDistance) && actuator.isWorking) {
+        actuator.actuate(0);
+      }
     }
   }
 
@@ -169,7 +169,7 @@ void loop() {
   //* BLE
   // BLE example
   if (bleHandler.getIsConnected()) {
-    bleHandler.notify("minjae,ba,bo");
+    bleHandler.notify(sendValue);
   }
 
   checkTimeBefore = checkTime;

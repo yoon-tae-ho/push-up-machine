@@ -13,14 +13,22 @@ User::User() {
 
   state = 0;
   prevState = 0;
-  count = 0;
+  totalCount = 0;
+  levelCount = 0;
 
+  double refDiff = 0.16 / 300; // max가 min의 몇 배인지
+  
   wentDown = false;
 }
 
-void User::setRefLoad(const double& max, const double& min) {
-  maxRefLoad = max;
-  minRefLoad = min;
+void User::setRefLoad(const double& max, const double& min, const double& currentPos) {  
+  maxRefLoad = max / (1 + refDiff * currentPos);
+  minRefLoad = min / (1 + refDiff * currentPos);
+}
+
+void User::calculateRef(const double& currentPos) {
+  maxRefLoad *= (1 + refDiff * currentPos);
+  minRefLoad *= (1 + refDiff * currentPos);
 }
 
 double User::getMaxRefLoad() {
@@ -48,12 +56,4 @@ int User::getState() {
 
 int User::getPrevState() {
   return prevState;
-}
-
-void User::setCount(const int& newCount) {
-  count = (newCount < 0) ? 0 : newCount;
-}
-
-int User::getCount() {
-  return count;
 }
