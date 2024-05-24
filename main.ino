@@ -15,14 +15,10 @@
 
 #define MAX_INT_VALUE 2147483647
 
-#define EEPROM_POSITION_INDEX 0
-#define EEPROM_ZERO_MAX_INDEX 1
-#define EEPROM_ZERO_MIN_INDEX 2
-
 Loadcell loadcell;
 Actuator actuator;
-BLEHandler bleHandler;
 User user;
+BLEHandler bleHandler("ESP32_BLE_Server", SERVICE_UUID, CHARACTERISTIC_UUID);
 
 //* Constants
 int startTime = 0;
@@ -70,20 +66,20 @@ void setup() {
   actuator = Actuator();
 
   // load initial position from flash memory
-  actuator.setInitialPosition(loadValue(EEPROM_POSITION_INDEX));
+  double pos = loadValue(EEPROM_POSITION_INDEX);
+  actuator.setInitialPosition(pos);
 
   //* Switch
   initializeSwitches();
 
   //* BLE
-  bleHandler = BLEHandler("ESP32_BLE_Server", SERVICE_UUID, CHARACTERISTIC_UUID);
   bleHandler.init();
 
   //* User
   user = User();
 
   // load reference load from flash memory
-  user.setRefLoad(loadValue(EEPROM_ZERO_MAX_INDEX), loadValue(EEPROM_ZERO_MIN_INDEX));
+  user.setRefLoad(loadValue(EEPROM_ZERO_MAX_INDEX), loadValue(EEPROM_ZERO_MIN_INDEX), pos);
 }
 
 
@@ -97,7 +93,7 @@ void loop() {
   checkPowerSwitch(actuator);
   checkManualSwitch(actuator);
   if (checkZeroSwitch()) {
-    zeroAdjustmenting = (dititalRead(ZERO_ADJUSTMENT) == LOW);
+    zeroAdjustmenting = (digitalRead(ZERO_ADJUSTMENT) == LOW);
     // stop zero adjustment
     if (!zeroAdjustmenting) {
       std::vector<double> localExtreme = getLocalExtremeValue(dataForZeroAdj, windowSize);
@@ -169,7 +165,7 @@ void loop() {
   //* BLE
   // BLE example
   if (bleHandler.getIsConnected()) {
-    bleHandler.notify(sendValue);
+    bleHandler.notify(sendValue.c_str());
   }
 
   checkTimeBefore = checkTime;

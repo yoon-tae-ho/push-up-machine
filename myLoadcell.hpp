@@ -1,6 +1,8 @@
 #ifndef MYLOADCELL_H
 #define MYLOADCELL_H
 
+#include "HX711.h"
+
 #define calibration_factor 14500
 
 class Loadcell {

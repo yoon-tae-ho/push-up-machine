@@ -9,6 +9,8 @@ class User {
     int state; // (0 ~ 3 : up ~ down)
     int prevState;
 
+    double refDiff;
+
   public:
     bool wentDown;
     bool autoMode;
@@ -31,6 +33,8 @@ class User {
     int getState();
 
     int getPrevState();
+
+    void calculateRef(const double& currentPos);
 };
 
 #endif

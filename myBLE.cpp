@@ -1,10 +1,18 @@
 // myBLE.cpp
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 #include "myBLE.hpp"
+
+BLEHandler* BLEHandler::instance = nullptr;
 
 BLEHandler::BLEHandler(const std::string& deviceName, const std::string& serviceUUID, const std::string& characteristicUUID)
     : deviceName(deviceName), serviceUUID(serviceUUID), characteristicUUID(characteristicUUID), isConnected(false) {}
 
 void BLEHandler::init() {
+    instance = this;
+
     BLEDevice::init(deviceName);
 
     pServer = BLEDevice::createServer();
@@ -36,11 +44,11 @@ bool BLEHandler::getIsConnected() {
 }
 
 void BLEHandler::ServerCallbacks::onConnect(BLEServer* pServer) {
-    BLEHandler* handler = static_cast<BLEHandler*>(pServer->getCallbacks());
+    BLEHandler* handler = BLEHandler::instance;
     handler->isConnected = true;
 }
 
 void BLEHandler::ServerCallbacks::onDisconnect(BLEServer* pServer) {
-    BLEHandler* handler = static_cast<BLEHandler*>(pServer->getCallbacks());
+    BLEHandler* handler = BLEHandler::instance;
     handler->isConnected = false;
 }

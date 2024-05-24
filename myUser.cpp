@@ -16,7 +16,9 @@ User::User() {
   totalCount = 0;
   levelCount = 0;
 
-  double refDiff = 0.16 / 300; // max가 min의 몇 배인지
+  autoMode = true;
+
+  refDiff = 0.16 / 300; // max가 min의 몇 배인지
   
   wentDown = false;
 }

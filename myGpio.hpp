@@ -1,6 +1,11 @@
 #ifndef MYGPIO_HPP
 #define MYGPIO_HPP
 
+// for EEPROM
+#define EEPROM_POSITION_INDEX 0
+#define EEPROM_ZERO_MAX_INDEX 1
+#define EEPROM_ZERO_MIN_INDEX 2
+
 // for Loadcell
 #define DOUT_RIGHT 16
 #define CLK_RIGHT 14
@@ -18,9 +23,5 @@
 #define MANUAL_ACTUATOR_UP 17
 #define MANUAL_ACTUATOR_DOWN 18
 #define ZERO_ADJUSTMENT 7
-
-// I2C
-#define SCL 9
-#define SDA 8
 
 #endif
