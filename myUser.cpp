@@ -46,7 +46,7 @@ double User::getMinRefLoad() {
 }
 
 double User::getMidRefLoad() {
-  return (maxRefLoad + minRefLoad) / 2.0;
+  return (getMaxRefLoad() + getMinRefLoad()) / 2.0;
 }
 
 void User::setState(const int& newState) {

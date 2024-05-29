@@ -155,10 +155,14 @@ void loop() {
       //save at flash memory (추후에 높이 보정해야함, calculateRef())
       saveValue(EEPROM_ZERO_MAX_INDEX, user.getMaxRefLoad());
       saveValue(EEPROM_ZERO_MIN_INDEX, user.getMinRefLoad());
+
+      // clear vector dataForZeroAdj
+      dataForZeroAdj.clear();
     }
   }
-    // reference load를 높이에 맞게 바꿔야 함
-    user.calculateRef(currentPos);
+
+  // reference load를 높이에 맞게 바꿔야 함
+  user.calculateRef(currentPos);
 
   //* Loadcell
   loadRight = loadcell.getRightLoad();
@@ -264,9 +268,8 @@ void loop() {
         writeVariable = "";
       }
     }
-  prevTime = checkTime;
+    prevTime = checkTime;
   }
-// 
 
   checkTimeBefore = checkTime;
   loadBefore = loadSum;
