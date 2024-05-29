@@ -7,7 +7,6 @@
 class Actuator {
   private:
     int currentPwm;
-    bool direction;
     double position; // mm
 
     bool isAvailable; // power switch
@@ -17,6 +16,7 @@ class Actuator {
 
   public:
     bool isWorking;
+    bool direction;
 
     Actuator();
 

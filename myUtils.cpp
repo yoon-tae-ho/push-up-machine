@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 #include <EEPROM.h>
 
 void saveValue(int index, double value) {
@@ -61,17 +62,26 @@ std::vector<double> getLocalExtremeValue(const std::vector<double>& data, const 
   int numOfLocalMax = 0;
   int numOfLocalMin = 0;
 
+  Serial.println("============================================");
   // 극댓값 출력
   for (size_t index : maxima) {
+      if (fabs(smoothedData[index]) < 10) continue;
       localMax += smoothedData[index];
       ++numOfLocalMax;
+      Serial.print(smoothedData[index]);
+      Serial.print(", ");
   }
 
+  Serial.println("--------------------------------------------");
   // 극솟값 출력
   for (size_t index : minima) {
+      if (fabs(smoothedData[index]) < 10) continue;
       localMin += smoothedData[index];
       ++numOfLocalMin;
+      Serial.print(smoothedData[index]);
+      Serial.print(", ");
   }
+  Serial.println("============================================");
 
   std::vector<double> result;
   result.push_back(localMax / numOfLocalMax);

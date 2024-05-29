@@ -1,7 +1,6 @@
 #ifndef MYUTILS_HPP
 #define MYUTILS_HPP
 
-// #include <iostream>
 #include <vector>
 
 void saveValue(int index, double value);

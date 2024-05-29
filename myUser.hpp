@@ -5,6 +5,8 @@ class User {
   private:
     double maxRefLoad;
     double minRefLoad;
+    double realMax;
+    double realMin;
 
     int state; // (0 ~ 3 : up ~ down)
     int prevState;
@@ -14,10 +16,10 @@ class User {
   public:
     bool wentDown;
     bool autoMode;
-    
+
     int totalCount;
     int levelCount;
-    
+
     User();
 
     void setRefLoad(const double& max, const double& min, const double& currentPos);

@@ -28,8 +28,9 @@ void initializeSwitches() {
 }
 
 void checkPowerSwitch(Actuator &actuator) {
-  // actuator.setAvailable(digitalRead(POWER) == LOW);
-  actuator.setAvailable(true);
+  bool isOn = digitalRead(POWER) == LOW;
+  actuator.setAvailable(isOn);
+  // actuator.setAvailable(true);
 }
 
 void checkManualSwitch(Actuator &actuator) {
