@@ -44,14 +44,14 @@ void checkManualSwitch(Actuator &actuator) {
     // actuate upward manualy
     actuator.setManualing(true);
     actuator.setForward();
-    actuator.actuate(MAX_ACTUATOR_PWM, true);
+    actuator.actuate(true, true);
   } else if (manualUp == HIGH && manualDown == LOW) {
     // actuate downward manualy
     actuator.setManualing(true);
     actuator.setBackward();
-    actuator.actuate(MAX_ACTUATOR_PWM, true);
+    actuator.actuate(true, true);
   } else {
-    actuator.actuate(0, true);
+    actuator.actuate(false, true);
     actuator.setManualing(false);
   }
 

@@ -37,13 +37,13 @@ void Actuator::setBackward() {
   setDirection();
 }
 
-void Actuator::actuate(int pwm, bool manualing) {
+void Actuator::actuate(bool minjae, bool manualing) {
   if (!isAvailable) return;
 
   if (isManualing && !manualing) return;
 
-  analogWrite(PWM_RIGHT, pwm);
-  analogWrite(PWM_LEFT, pwm);
+  analogWrite(PWM_RIGHT, minjae ? MAX_ACTUATOR_PWM_RIGHT : 0);
+  analogWrite(PWM_LEFT, minjae ? MAX_ACTUATOR_PWM_LEFT : 0);
 
   isWorking = (pwm != 0);
   currentPwm = pwm;

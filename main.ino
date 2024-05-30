@@ -204,12 +204,12 @@ void loop() {
       // 몇 번 이후 작동
       if ((user.levelCount == 5) && (user.levelCount != 0)) {
         actuator.setBackward();
-        actuator.actuate(MAX_ACTUATOR_PWM);
+        actuator.actuate(true);
         refPosition = currentPos;
         user.levelCount = 0;
       }
       if ((fabs(refPosition - currentPos) >= 50.0) && actuator.isWorking) {
-        actuator.actuate(0);
+        actuator.actuate(false);
       }
     }
   }
@@ -245,6 +245,7 @@ void loop() {
   result += ",";
   // 7: LEVEL COUNT
   result += String(user.levelCount);
+  Serial.println(result);
 
   if (checkTime - prevTime >= 100) {
 
@@ -257,16 +258,16 @@ void loop() {
           // manual up
           actuator.setManualing(true);
           actuator.setForward();
-          actuator.actuate(MAX_ACTUATOR_PWM, true);
+          actuator.actuate(true, true);
         } else if (writeVariable.indexOf("S") >= 0) {
           // manual stop
-          actuator.actuate(0, true);
+          actuator.actuate(false, true);
           actuator.setManualing(false); 
         } else if (writeVariable.indexOf("D") >= 0) {
           // manual down
           actuator.setManualing(true);
           actuator.setBackward();
-          actuator.actuate(MAX_ACTUATOR_PWM, true);
+          actuator.actuate(true, true);
         } else if (writeVariable.indexOf("Z") >= 0) {
           // zero adjustment
           zeroInterrupt = true;

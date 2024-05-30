@@ -1,8 +1,9 @@
 #ifndef MYACTUATOR_H
 #define MYACTUATOR_H
 
-#define MAX_ACTUATOR_PWM 255
-#define MAX_ACTUATOR_SPEED 11.095 // 11.095 mm/s
+#define MAX_ACTUATOR_PWM_RIGHT 255.0 * (9.987 / 10.345) - 1.0
+#define MAX_ACTUATOR_PWM_LEFT 255.0
+#define MAX_ACTUATOR_SPEED 9.987 // 9.987 mm/s
 
 #define MAX_ACTUATOR_HEIGHT 210
 #define MIN_ACTUATOR_HEIGHT 0
@@ -27,8 +28,8 @@ class Actuator {
 
     void setBackward();
 
-    void actuate(int speed, bool manualing = false);
-
+    void actuate(bool minjae, bool manualing = false);
+    
     float getCurrentPosition();
 
     void setInitialPosition(float value);
