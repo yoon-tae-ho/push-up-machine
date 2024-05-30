@@ -277,9 +277,10 @@ void loop() {
         writeVariable = "";
       }
     }
-  prevTime = checkTime;
+    prevTime = checkTime;
   }
 
+  actuator.checkHeightLimit();
   checkTimeBefore = checkTime;
   loadBefore = loadSum;
 }

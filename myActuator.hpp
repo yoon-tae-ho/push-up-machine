@@ -4,6 +4,9 @@
 #define MAX_ACTUATOR_PWM 255
 #define MAX_ACTUATOR_SPEED 11.095 // 11.095 mm/s
 
+#define MAX_ACTUATOR_HEIGHT 210
+#define MIN_ACTUATOR_HEIGHT 0
+
 class Actuator {
   private:
     int currentPwm;
@@ -35,6 +38,8 @@ class Actuator {
     void setAvailable(bool available);
 
     void setManualing(bool manualing);
+
+    void checkHeightLimit();
 };
 
 #endif

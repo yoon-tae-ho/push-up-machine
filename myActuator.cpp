@@ -64,8 +64,8 @@ void Actuator::calculatePosition(float timeStep) {
   if (direction == LOW) displacement *= -1;
   position += displacement;
 
-  if (position < 0) position = 0;
-  else if (position > 300.0) position = 300.0;
+  if (position < MIN_ACTUATOR_HEIGHT) position = MIN_ACTUATOR_HEIGHT;
+  else if (position > MAX_ACTUATOR_HEIGHT) position = MAX_ACTUATOR_HEIGHT;
 
   // save at flash memory
   saveValue(EEPROM_POSITION_INDEX, position);
@@ -78,4 +78,8 @@ void Actuator::setAvailable(bool available) {
 
 void Actuator::setManualing(bool manualing) {
   isManualing = manualing;
+}
+
+void Actuator::checkHeightLimit() {
+  if (position > MAX_ACTUATOR_HEIGHT) actuate(0, true);
 }
