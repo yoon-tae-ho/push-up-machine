@@ -19,7 +19,6 @@ Actuator::Actuator() {
   pinMode(DIR_LEFT, OUTPUT);
   pinMode(PWM_LEFT, OUTPUT);
 
-  currentPwm = 0;
   position = 0;
   direction = HIGH;
   isWorking = false;
@@ -45,8 +44,7 @@ void Actuator::actuate(bool minjae, bool manualing) {
   analogWrite(PWM_RIGHT, minjae ? MAX_ACTUATOR_PWM_RIGHT : 0);
   analogWrite(PWM_LEFT, minjae ? MAX_ACTUATOR_PWM_LEFT : 0);
 
-  isWorking = (pwm != 0);
-  currentPwm = pwm;
+  isWorking = minjae;
 }
 
 float Actuator::getCurrentPosition() {
@@ -72,7 +70,7 @@ void Actuator::calculatePosition(float timeStep) {
 }
 
 void Actuator::setAvailable(bool available) {
-  if (!available) actuate(0, true);
+  if (!available) actuate(false, true);
   isAvailable = available;
 }
 
@@ -81,5 +79,5 @@ void Actuator::setManualing(bool manualing) {
 }
 
 void Actuator::checkHeightLimit() {
-  if (position > MAX_ACTUATOR_HEIGHT) actuate(0, true);
+  if (position > MAX_ACTUATOR_HEIGHT) actuate(false, true);
 }

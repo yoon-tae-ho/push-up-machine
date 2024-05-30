@@ -10,7 +10,6 @@
 
 class Actuator {
   private:
-    int currentPwm;
     float position; // mm
 
     bool isManualing; // manual switch
