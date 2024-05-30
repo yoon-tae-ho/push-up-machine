@@ -16,13 +16,13 @@ Loadcell::Loadcell() {
   balanceFactor = 0.85;
 }
 
-double Loadcell::getRightLoad() { return (double)scaleRight.get_units(); }
+float Loadcell::getRightLoad() { return (float)scaleRight.get_units(); }
 
-double Loadcell::getLeftLoad() { return (double)scaleLeft.get_units(); }
+float Loadcell::getLeftLoad() { return (float)scaleLeft.get_units(); }
 
 bool Loadcell::checkBalance() {
-  double loadRight = getRightLoad();
-  double loadLeft = getLeftLoad();
+  float loadRight = getRightLoad();
+  float loadLeft = getLeftLoad();
 
   return (loadLeft > loadRight * balanceFactor) ||
          (loadRight > loadLeft * balanceFactor);

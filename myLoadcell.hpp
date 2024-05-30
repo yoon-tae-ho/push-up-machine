@@ -17,9 +17,9 @@ class Loadcell {
 
     Loadcell();
 
-    double getRightLoad();
+    float getRightLoad();
 
-    double getLeftLoad();
+    float getLeftLoad();
 
     bool checkBalance();
 

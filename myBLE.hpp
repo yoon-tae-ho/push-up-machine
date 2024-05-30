@@ -27,7 +27,7 @@ class BLEHandler {
 
   public:
     static BLEHandler* instance;
-    
+
     BLEHandler(const std::string& deviceName, const std::string& serviceUUID, const std::string& characteristicUUID);
 
     void init();

@@ -7,14 +7,14 @@
 class Actuator {
   private:
     int currentPwm;
-    double position; // mm
+    float position; // mm
 
-    bool isAvailable; // power switch
     bool isManualing; // manual switch
 
     void setDirection();
 
   public:
+    bool isAvailable; // power switch
     bool isWorking;
     bool direction;
 
@@ -26,11 +26,11 @@ class Actuator {
 
     void actuate(int speed, bool manualing = false);
 
-    double getCurrentPosition();
+    float getCurrentPosition();
 
-    void setInitialPosition(double value);
+    void setInitialPosition(float value);
 
-    void calculatePosition(double timeStep);
+    void calculatePosition(float timeStep);
 
     void setAvailable(bool available);
 

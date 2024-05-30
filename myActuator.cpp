@@ -49,18 +49,18 @@ void Actuator::actuate(int pwm, bool manualing) {
   currentPwm = pwm;
 }
 
-double Actuator::getCurrentPosition() {
+float Actuator::getCurrentPosition() {
   return position;
 }
 
-void Actuator::setInitialPosition(double value) {
+void Actuator::setInitialPosition(float value) {
   position = value;
 }
 
-void Actuator::calculatePosition(double timeStep) {
+void Actuator::calculatePosition(float timeStep) {
   if (!isWorking) return;
 
-  double displacement = (double)MAX_ACTUATOR_SPEED * timeStep; // v (mm/s) * t (s)
+  float displacement = (float)MAX_ACTUATOR_SPEED * timeStep; // v (mm/s) * t (s)
   if (direction == LOW) displacement *= -1;
   position += displacement;
 

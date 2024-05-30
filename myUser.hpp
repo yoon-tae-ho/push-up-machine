@@ -3,15 +3,16 @@
 
 class User {
   private:
-    double maxRefLoad;
-    double minRefLoad;
-    double realMax;
-    double realMin;
+    float maxRefLoad;
+    float minRefLoad;
+    float realMax;
+    float realMin;
 
     int state; // (0 ~ 3 : up ~ down)
     int prevState;
+    int pprevState;
 
-    double refDiff;
+    float refDiff;
 
   public:
     bool wentDown;
@@ -22,13 +23,13 @@ class User {
 
     User();
 
-    void setRefLoad(const double& max, const double& min, const double& currentPos);
+    void setRefLoad(const float& max, const float& min, const float& currentPos);
 
-    double getMaxRefLoad();
+    float getMaxRefLoad();
 
-    double getMinRefLoad();
+    float getMinRefLoad();
 
-    double getMidRefLoad();
+    float getMidRefLoad();
 
     void setState(const int& newState);
 
@@ -36,7 +37,9 @@ class User {
 
     int getPrevState();
 
-    void calculateRef(const double& currentPos);
+    int getPprevState();
+
+    void calculateRef(const float& currentPos);
 };
 
 #endif

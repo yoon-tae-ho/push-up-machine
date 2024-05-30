@@ -15,6 +15,7 @@ User::User() {
 
   state = 0;
   prevState = 0;
+  pprevState = 0;
   totalCount = 0;
   levelCount = 0;
 
@@ -25,41 +26,36 @@ User::User() {
   wentDown = false;
 }
 
-void User::setRefLoad(const double& max, const double& min, const double& currentPos) {  
+void User::setRefLoad(const float &max, const float &min,
+                      const float &currentPos) {
   // 진짜 reference(최저 높이라고 가정, 최고 하중, 값이 증가해야 함)
   realMax = max / (1 - refDiff * currentPos);
   realMin = min / (1 - refDiff * currentPos);
 }
 
-void User::calculateRef(const double& currentPos) {
+void User::calculateRef(const float &currentPos) {
   // 현재 높이에 맞게 reference 세팅(하중 낮아짐)
   maxRefLoad = realMax * (1 - refDiff * currentPos);
   minRefLoad = realMin * (1 - refDiff * currentPos);
 }
 
-double User::getMaxRefLoad() {
-  return maxRefLoad;
-}
+float User::getMaxRefLoad() { return maxRefLoad; }
 
-double User::getMinRefLoad() {
-  return minRefLoad;
-}
+float User::getMinRefLoad() { return minRefLoad; }
 
-double User::getMidRefLoad() {
-  return (getMaxRefLoad() + getMinRefLoad()) / 2.0;
-}
+float User::getMidRefLoad() { return (maxRefLoad + minRefLoad) / 2.0; }
 
-void User::setState(const int& newState) {
+void User::setState(const int &newState) {
   // (0 ~ 3 : up ~ down)
-  if (state == newState || newState < 0 || newState > 3) return;
+  if (state == newState || newState < 0 || newState > 3)
+    return;
+  pprevState = prevState;
   prevState = state;
   state = newState;
 }
 
-int User::getState() {
-  return state;
-}
+int User::getState() { return state; }
 
-int User::getPrevState() {
-  return prevState;
-}
+int User::getPrevState() { return prevState; }
+
+int User::getPprevState() { return pprevState; }
